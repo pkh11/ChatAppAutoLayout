@@ -17,8 +17,13 @@ class ViewController: UIViewController {
 //            chatTableView.separatorStyle = .none
         }
     }
-    @IBOutlet weak var inputTextView: UITextView!
+    @IBOutlet weak var inputTextView: UITextView!{
+        didSet{
+            inputTextView.delegate = self
+        }
+    }
     @IBOutlet weak var inputViewBottomMargin: NSLayoutConstraint!
+    @IBOutlet weak var inputTextViewHeight: NSLayoutConstraint!
     
     var chatDatas = [String]()
     
@@ -67,6 +72,8 @@ class ViewController: UIViewController {
         // tableview 마지막 row만 갱신
         chatTableView.insertRows(at: [lastIndexPath], with: UITableView.RowAnimation.automatic)
         
+        inputTextViewHeight.constant = 40
+        
         chatTableView.scrollToRow(at: lastIndexPath, at: UITableView.ScrollPosition.bottom, animated: true)
     }
 }
@@ -80,13 +87,24 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         if indexPath.row % 2 == 0{
             let myCell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath) as! MyCell
             myCell.myCellTextView.text = chatDatas[indexPath.row]
+            myCell.selectionStyle = .none
             return myCell
         }else{
             let yourCell = tableView.dequeueReusableCell(withIdentifier: "yourCell", for: indexPath) as! YourCell
             yourCell.yourCellTextView.text = chatDatas[indexPath.row]
+            yourCell.selectionStyle = .none
             return yourCell
         }
     }
-    
-    
+}
+extension ViewController: UITextViewDelegate{
+    func textViewDidChange(_ textView: UITextView) {
+        if textView.contentSize.height <= 40 {
+            inputTextViewHeight.constant = textView.contentSize.height
+        }else if textView.contentSize.height >= 100 {
+            inputTextViewHeight.constant = 100
+        }else {
+            inputTextViewHeight.constant = textView.contentSize.height
+        }
+    }
 }
